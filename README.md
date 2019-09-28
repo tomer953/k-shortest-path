@@ -1,12 +1,10 @@
 # KSP - K Shortest Path
 
 ### Computes the K shortest paths in a graph from node S to node T using [Yen's algorithm](https://en.wikipedia.org/wiki/Yen%27s_algorithm).
+![example](example.gif)
+
 
 ### Installation
-
-Dillinger requires [Node.js](https://nodejs.org/) v4+ to run.
-
-Install the dependencies and devDependencies and start the server.
 
 ```
 npm i k-shortest-path
@@ -25,7 +23,7 @@ const graphlib = require('graphlib');
 
 let g = new graphlib.Graph();
 
-// create edge: (fromNode, toNode, weight)
+// draw example graph as the image above
 g.setEdge('C', 'D', 3);
 g.setEdge('C', 'E', 2);
 g.setEdge('D', 'F', 4);
@@ -43,7 +41,36 @@ and finally use this library to calculate k shortest path:
 const ksp = require('k-shortest-path');
 
 // (graph, startNode, targetNode, k)
-ksp.ksp(g, 'C', 'H', k);
+ksp.ksp(g, 'C', 'H', 3);
+
+/* return 3 paths:
+[
+    { 
+        "totalCost": 5,
+        "edges": [
+            { "fromNode": "C", "toNode": "E", "weight": 2 },
+            { "fromNode": "E", "toNode": "F", "weight": 2 },
+            { "fromNode": "F", "toNode": "H", "weight": 1}
+        ]
+    },
+    {
+        "totalCost": 7,
+        "edges": [
+            { "fromNode": "C", "toNode": "E", "weight": 2 },
+            { "fromNode": "E", "toNode": "G", "weight": 3 },
+            { "fromNode": "G", "toNode": "H", "weight": 2 }
+        ]
+    },
+    {
+        "totalCost": 8,
+        "edges": [
+            { "fromNode": "C", "toNode": "D", "weight": 3 },
+            { "fromNode": "D", "toNode": "F",  "weight": 4 },
+            { "fromNode": "F", "toNode": "H",  "weight": 1 }
+        ]
+    }
+]
+*/
 ```
 
 ---
