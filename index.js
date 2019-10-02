@@ -1,12 +1,16 @@
 const graphlib = require('graphlib');
 
 exports.ksp = function(g, source, target, K) {
+
+    // clone graph to avoid changes to the original
+    let _g = graphlib.json.read(graphlib.json.write(g));
+
     // Initialize containers for candidate paths and k shortest paths
     let ksp = [];
     let candidates = [];
 
     // Compute and add the shortest path */
-    let kthPath = getDijkstra(g, source, target);
+    let kthPath = getDijkstra(_g, source, target);
     if (!kthPath) {
         return ksp;
     }
@@ -48,7 +52,7 @@ exports.ksp = function(g, source, target, K) {
                     // If so, eliminate the next edge in the path from the graph (later on, this forces the spur
                     // node to connect the root path with an un-found suffix path) */
                     let re = p.edges[i];
-                    g.removeEdge(re.fromNode, re.toNode);
+                    _g.removeEdge(re.fromNode, re.toNode);
                     removedEdges.push(re);
                 }
             })
@@ -58,13 +62,13 @@ exports.ksp = function(g, source, target, K) {
                 let rn = rootPathEdge.fromNode;
                 if (rn !== spurNode) {
                     // remove node and return removed edges
-                    let removedEdgeFromNode = removeNode(g, rn);
+                    let removedEdgeFromNode = removeNode(_g, rn);
                     removedEdges.push(...removedEdgeFromNode);
                 }
             })
 
             // Spur path = shortest path from spur node to target node in the reduced graph
-            let spurPath = getDijkstra(g, spurNode, target);
+            let spurPath = getDijkstra(_g, spurNode, target);
 
             // If a new spur path was identified...
             if (spurPath != null) {
@@ -80,7 +84,7 @@ exports.ksp = function(g, source, target, K) {
                 }
             }
 
-            addEdges(g, removedEdges);
+            addEdges(_g, removedEdges);
         }
 
         // Identify the candidate path with the shortest cost */
