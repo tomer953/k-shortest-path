@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Laurix1983/k-shortest-path.git"
+    "url": "git+https://github.com/tomer953/k-shortest-path.git"
   },
   "keywords": [
     "ksp",
@@ -21,9 +21,9 @@
   "author": "tomer953",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Laurix1983/k-shortest-path/issues"
+    "url": "https://github.com/tomer953/k-shortest-path/issues"
   },
-  "homepage": "https://github.com/Laurix1983/k-shortest-path#readme",
+  "homepage": "https://github.com/tomer953/k-shortest-path#readme",
   "dependencies": {
     "graphlib": "^2.1.7"
   }
