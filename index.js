@@ -1,6 +1,6 @@
 const graphlib = require('graphlib');
 
-exports.ksp = function(g, source, target, K) {
+exports.ksp = function (g, source, target, K, weightFunc, edgeFunc) {
 
     // clone graph to avoid changes to the original
     let _g = graphlib.json.read(graphlib.json.write(g));
@@ -10,7 +10,7 @@ exports.ksp = function(g, source, target, K) {
     let candidates = [];
 
     // Compute and add the shortest path */
-    let kthPath = getDijkstra(_g, source, target);
+    let kthPath = getDijkstra(_g, source, target, weightFunc, edgeFunc);
     if (!kthPath) {
         return ksp;
     }
@@ -62,13 +62,13 @@ exports.ksp = function(g, source, target, K) {
                 let rn = rootPathEdge.fromNode;
                 if (rn !== spurNode) {
                     // remove node and return removed edges
-                    let removedEdgeFromNode = removeNode(_g, rn);
+                    let removedEdgeFromNode = removeNode(_g, rn, weightFunc);
                     removedEdges.push(...removedEdgeFromNode);
                 }
             })
 
             // Spur path = shortest path from spur node to target node in the reduced graph
-            let spurPath = getDijkstra(_g, spurNode, target);
+            let spurPath = getDijkstra(_g, spurNode, target, weightFunc, edgeFunc);
 
             // If a new spur path was identified...
             if (spurPath != null) {
@@ -112,18 +112,20 @@ exports.ksp = function(g, source, target, K) {
         // Add the best, non-duplicate candidate identified as the k shortest path
         ksp.push(kthPath);
     }
-
     return ksp;
 }
 
 
 // Dijkstra algorithm to find the shortest path
-function getDijkstra(g, source, target) {
-    let dijkstra = graphlib.alg.dijkstra(g, source, (e) => g.edge(e));
-    return extractPathFromDijkstra(g, dijkstra, source, target);
+function getDijkstra(g, source, target, weightFunc, edgeFunc) {
+    if (!weightFunc)
+        weightFunc = (e) => g.edge(e);
+
+    let dijkstra = graphlib.alg.dijkstra(g, source, weightFunc, edgeFunc);
+    return extractPathFromDijkstra(g, dijkstra, source, target, weightFunc, edgeFunc);
 }
 
-function extractPathFromDijkstra(g, dijkstra, source, target) {
+function extractPathFromDijkstra(g, dijkstra, source, target, weightFunc, edgeFunc) {
     // check if there is a valid path
     if (dijkstra[target].distance === Number.POSITIVE_INFINITY) {
         return null;
@@ -133,7 +135,15 @@ function extractPathFromDijkstra(g, dijkstra, source, target) {
     let currentNode = target;
     while (currentNode !== source) {
         let previousNode = dijkstra[currentNode].predecessor;
-        let edge = getNewEdge(previousNode, currentNode, g.edge(previousNode, currentNode));
+
+        let weightValue;
+
+
+        if (weightFunc)
+            weightValue = weightFunc({ v: previousNode, w: currentNode });
+        else
+            weightValue = g.edge(previousNode, currentNode)
+        let edge = getNewEdge(previousNode, currentNode, weightValue, g.edge(previousNode, currentNode));
         edges.push(edge);
         currentNode = previousNode;
     }
@@ -147,19 +157,28 @@ function extractPathFromDijkstra(g, dijkstra, source, target) {
 
 function addEdges(g, edges) {
     edges.forEach(e => {
-        g.setEdge(e.fromNode, e.toNode, e.weight);
+        g.setEdge(e.fromNode, e.toNode, e.edgeObj);
     })
 }
 
 // input: a graph and a node to remove
 // return value: array of removed edges
-function removeNode(g, rn) {
+function removeNode(g, rn, weightFunc) {
+
     let remEdges = [];
     let edges = cloneObject(g.edges());
     // save all the edges we are going to remove
     edges.forEach(edge => {
         if (edge.v == rn || edge.w == rn) {
-            let e = getNewEdge(edge.v, edge.w, g.edge(edge));
+
+            let weightValue;
+            if (weightFunc)
+                weightValue = weightFunc(edge);
+            else
+                weightValue = g.edge(edge);
+
+
+            let e = getNewEdge(edge.v, edge.w, weightValue, g.edge(edge));
             remEdges.push(e);
         }
     })
@@ -220,11 +239,12 @@ function isPathEqual(path1, path2) {
 }
 
 // build a new edge object
-function getNewEdge(fromNode, toNode, weight) {
+function getNewEdge(fromNode, toNode, weight, edgeObject) {
     return {
         fromNode: fromNode,
         toNode: toNode,
-        weight: weight
+        weight: weight,
+        edgeObj: edgeObject
     }
 }
 
