@@ -118,8 +118,9 @@ exports.ksp = function (g, source, target, K, weightFunc, edgeFunc) {
 
 // Dijkstra algorithm to find the shortest path
 function getDijkstra(g, source, target, weightFunc, edgeFunc) {
-    if (!weightFunc)
+    if (!weightFunc) {
         weightFunc = (e) => g.edge(e);
+    }
 
     let dijkstra = graphlib.alg.dijkstra(g, source, weightFunc, edgeFunc);
     return extractPathFromDijkstra(g, dijkstra, source, target, weightFunc, edgeFunc);
@@ -136,14 +137,14 @@ function extractPathFromDijkstra(g, dijkstra, source, target, weightFunc, edgeFu
     while (currentNode !== source) {
         let previousNode = dijkstra[currentNode].predecessor;
 
+        // extract weight from edge, using weightFunc if supplied, or the default way
         let weightValue;
-
-
-        if (weightFunc)
+        if (weightFunc) {
             weightValue = weightFunc({ v: previousNode, w: currentNode });
-        else
+        } else {
             weightValue = g.edge(previousNode, currentNode)
-        let edge = getNewEdge(previousNode, currentNode, weightValue, g.edge(previousNode, currentNode));
+        }
+        let edge = getNewEdge(previousNode, currentNode, weightValue);
         edges.push(edge);
         currentNode = previousNode;
     }
@@ -171,14 +172,15 @@ function removeNode(g, rn, weightFunc) {
     edges.forEach(edge => {
         if (edge.v == rn || edge.w == rn) {
 
+            // extract weight
             let weightValue;
-            if (weightFunc)
+            if (weightFunc) {
                 weightValue = weightFunc(edge);
-            else
+            } else {
                 weightValue = g.edge(edge);
+            }
 
-
-            let e = getNewEdge(edge.v, edge.w, weightValue, g.edge(edge));
+            let e = getNewEdge(edge.v, edge.w, weightValue);
             remEdges.push(e);
         }
     })
@@ -239,12 +241,11 @@ function isPathEqual(path1, path2) {
 }
 
 // build a new edge object
-function getNewEdge(fromNode, toNode, weight, edgeObject) {
+function getNewEdge(fromNode, toNode, weight) {
     return {
         fromNode: fromNode,
         toNode: toNode,
-        weight: weight,
-        edgeObj: edgeObject
+        weight: weight
     }
 }
 

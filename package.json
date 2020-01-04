@@ -1,6 +1,6 @@
 {
   "name": "k-shortest-path",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Computes the K shortest paths in a graph from node s to node t using Yen's algorithm",
   "main": "index.js",
   "scripts": {

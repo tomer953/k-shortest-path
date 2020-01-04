@@ -73,6 +73,14 @@ ksp.ksp(g, 'C', 'H', 3);
 */
 ```
 
+for more complex graphs there are two optional parameters:
+
+`ksp.ksp(g, 'C', 'H', 3, weightFunc, edgeFunc);`
+- `weightFunc`
+- `edgeFunc`
+
+they are exactly the same like in [graphlib dijkstra](https://github.com/dagrejs/graphlib/wiki/API-Reference#alg-dijkstra).
+
 ---
 ### Information & limitations
 - Yen's algorithm computes loop-less paths only
