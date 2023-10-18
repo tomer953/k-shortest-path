@@ -25,6 +25,6 @@
   },
   "homepage": "https://github.com/tomer953/k-shortest-path#readme",
   "dependencies": {
-    "graphlib": "^2.1.7"
+    "graphlib": "^2.1.8"
   }
 }
